@@ -1,0 +1,57 @@
+server:
+#  生产者端
+  port: 6666
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr:
+  application:
+    name: nacos-service-provider
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      url:
+      username:
+      password:
+      initial-size: 20
+      min-idle: 10
+      max-active: 50
+      max-wait: 30000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: select '1' from dual
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*,/actuator/*'
+
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/booking/*
+        reset-enable: false
+        login-username: steafan
+        login-password: steafanAdmin
+      default-auto-commit: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+#spring:
+#  application:
+#    name: nacos-service-provider
+
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.steafan.booking.dao
+  configuration:
+    map-underscore-to-camel-case: true
