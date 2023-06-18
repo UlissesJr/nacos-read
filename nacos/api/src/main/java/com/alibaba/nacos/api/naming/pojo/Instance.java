@@ -68,7 +68,11 @@ public class Instance implements Serializable {
     
     /**
      * If instance is ephemeral.
+     * 当 ephemeral 属性为 true 时，表示该实例是一个临时实例，它会在服务实例下线时自动删除。
+     * 通常情况下，我们使用临时实例来表示一个短暂的服务实例，比如一个临时的任务执行节点。
      *
+     * 当 ephemeral 属性为 false 时，表示该实例是一个持久实例，它会一直存在，直到被手动删除。
+     * 通常情况下，我们使用持久实例来表示一个长期存在的服务实例，比如一个数据库节点或者一个缓存节点。
      * @since 1.0.0
      */
     private boolean ephemeral = true;
@@ -85,6 +89,7 @@ public class Instance implements Serializable {
     
     /**
      * user extended attributes.
+     * 元数据组成结构为 HashMap
      */
     private Map<String, String> metadata = new HashMap<>();
     

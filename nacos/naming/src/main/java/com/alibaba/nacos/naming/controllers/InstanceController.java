@@ -109,16 +109,26 @@ public class InstanceController {
     @PostMapping
     @Secured(action = ActionTypes.WRITE)
     public String register(HttpServletRequest request) throws Exception {
-        
+
+        // 获取namaspaceId 默认值为 public
         final String namespaceId = WebUtils
                 .optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
+        // 获取 serviceName
         final String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
+        // 对ServiceName进行参数校验 @@分隔符，判断length，检查不过直接抛出异常
         NamingUtils.checkServiceNameFormat(serviceName);
-        
+
+        // 建造者模式
         final Instance instance = HttpRequestInstanceBuilder.newBuilder()
-                .setDefaultInstanceEphemeral(switchDomain.isDefaultInstanceEphemeral()).setRequest(request).build();
+                //对 DefaultInstanceEphemeral 属性赋值
+                .setDefaultInstanceEphemeral(switchDomain.isDefaultInstanceEphemeral())
+                // 对 actualBuilder 属性赋值
+                .setRequest(request)
+                // Instance result = actualBuilder.build();
+                .build();
         
         getInstanceOperator().registerInstance(namespaceId, serviceName, instance);
+        // NotifyCenter 观察者模式设计实现
         NotifyCenter.publishEvent(new RegisterInstanceTraceEvent(System.currentTimeMillis(), "",
                 false, namespaceId, NamingUtils.getGroupName(serviceName), NamingUtils.getServiceName(serviceName),
                 instance.getIp(), instance.getPort()));
@@ -305,7 +315,7 @@ public class InstanceController {
     
     /**
      * Get all instance of input service.
-     *
+     * 服务发现 基于订阅者模式实现的
      * @param request http request
      * @return list of instance
      * @throws Exception any error during list
@@ -321,10 +331,14 @@ public class InstanceController {
         String agent = WebUtils.getUserAgent(request);
         String clusters = WebUtils.optional(request, "clusters", StringUtils.EMPTY);
         String clientIP = WebUtils.optional(request, "clientIP", StringUtils.EMPTY);
+        // 注意这里用的是UDP
         int udpPort = Integer.parseInt(WebUtils.optional(request, "udpPort", "0"));
+        // 当 healthyOnly 为 true 时，表示只返回健康的服务实例，过滤掉不健康的服务实例。
+        // 当 healthyOnly 为 false 时，表示返回所有的服务实例，包括健康和不健康的服务实例。
         boolean healthyOnly = Boolean.parseBoolean(WebUtils.optional(request, "healthyOnly", "false"));
         String app = WebUtils.optional(request, "app", StringUtils.EMPTY);
 
+        // 构造订阅者
         Subscriber subscriber = new Subscriber(clientIP + ":" + udpPort, agent, app, clientIP, namespaceId, serviceName,
                 udpPort, clusters);
         return getInstanceOperator().listInstance(namespaceId, serviceName, subscriber, clusters, healthyOnly);
@@ -445,7 +459,8 @@ public class InstanceController {
         result.replace("ips", ipArray);
         return result;
     }
-    
+
+    // 根据是否使用Grpc选择service；
     private InstanceOperator getInstanceOperator() {
         return upgradeJudgement.isUseGrpcFeatures() ? instanceServiceV2 : instanceServiceV1;
     }

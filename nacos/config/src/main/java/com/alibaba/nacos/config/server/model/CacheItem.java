@@ -138,7 +138,8 @@ public class CacheItem {
     public volatile Map<String, String> tagMd5;
     
     public volatile Map<String, Long> tagLastModifiedTs;
-    
+
+    // 自定义实现了一个读写锁
     public SimpleReadWriteLock rwLock = new SimpleReadWriteLock();
     
     public String type;

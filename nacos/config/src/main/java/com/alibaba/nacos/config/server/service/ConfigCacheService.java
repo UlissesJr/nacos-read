@@ -62,9 +62,10 @@ public class ConfigCacheService {
     private static final String DISK_QUATA_CN = "超出磁盘限额";
     
     private static final String DISK_QUATA_EN = "Disk quota exceeded";
-    
+
     /**
      * groupKey -> cacheItem.
+     * CACHE 是一个 ConcurrentHashMap
      */
     private static final ConcurrentHashMap<String, CacheItem> CACHE = new ConcurrentHashMap<>();
     
@@ -668,7 +669,9 @@ public class ConfigCacheService {
      * @return 0 - No data and failed. Positive number - lock succeeded. Negative number - lock failed。
      */
     public static int tryReadLock(String groupKey) {
+        // CACHE 为 ConcurrentHashMap
         CacheItem groupItem = CACHE.get(groupKey);
+        // reLock 为 Nacos自己实现的读写锁 SimpleReadWriteLock
         int result = (null == groupItem) ? 0 : (groupItem.rwLock.tryReadLock() ? 1 : -1);
         if (result < 0) {
             DEFAULT_LOG.warn("[read-lock] failed, {}, {}", result, groupKey);

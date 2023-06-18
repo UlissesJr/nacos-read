@@ -26,9 +26,21 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author Nacos
  */
 @EnableScheduling
+// scanBasePackages 属性指定了需要扫描的包。
+// 其中，com.alibaba.nacos.config.server 包和 com.alibaba.nacos.core 包分别是 Nacos 配置服务器和核心模块的包，
+// 这个注解的作用是将 Nacos 的配置服务器和核心模块注册为 Spring Bean，从而可以在应用程序中使用这些组件。
+
+// 配置 scanBasePackages 属性和使用 @ComponentScan 注解的 basePackages 属性是等效的，
+// 都是用于指定 Spring 扫描的包范围。
+// scanBasePackages 属性会被转化为 @ComponentScan 注解的 basePackages 属性
+
+// @SpringBootApplication(scanBasePackages = {"com.example.demo"})
+// @ComponentScan(basePackages = {"com.example.demo"})
+
 @SpringBootApplication(scanBasePackages = {
         "com.alibaba.nacos.config.server",
         "com.alibaba.nacos.core"})
+
 public class Config {
     
     public static void main(String[] args) {

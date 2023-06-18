@@ -47,7 +47,7 @@ import java.util.UUID;
 
 /**
  * Nacos Naming Service.
- *
+ * Spring boot 框架注册服务的入口类
  * @author nkorange
  */
 @SuppressWarnings("PMD.ServiceOrDaoClassShouldEndWithImplRule")

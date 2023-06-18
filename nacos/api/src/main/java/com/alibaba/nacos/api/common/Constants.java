@@ -213,7 +213,8 @@ public class Constants {
     public static final String LOCATION_TAG = "Location-Tag";
     
     public static final String CHARSET_KEY = "charset";
-    
+
+    // 这个正则表达式的含义为：匹配由数字、字母和短横线组成的字符串，且字符串的开头和结尾必须是数字或字母。
     public static final String CLUSTER_NAME_PATTERN_STRING = "^[0-9a-zA-Z-]+$";
     
     /**

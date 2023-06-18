@@ -118,6 +118,7 @@ public class ConfigController {
     
     /**
      * Adds or updates non-aggregated data.
+     * 配置发布
      * <p>
      * request and response will be used in aspect, see
      * {@link com.alibaba.nacos.config.server.aspect.CapacityManagementAspect} and
@@ -150,12 +151,29 @@ public class ConfigController {
         if (!ConfigType.isValidType(type)) {
             type = ConfigType.getDefaultType().getType();
         }
-        
+
+        // content为需要发布的内容，对内容进行加密
         // encrypted
         Pair<String, String> pair = EncryptionHandler.encryptHandler(dataId, content);
         content = pair.getSecond();
         
         // check tenant
+        // 租户（Tenant）是指在一个应用程序中使用同一套代码，但是不同的用户组分别使用不同的资源和数据。
+        // 通常情况下，租户是指一个企业或组织，每个租户都有自己的数据和资源，而这些数据和资源在应用程序中是相互独立的。
+
+        // 实现多租户的方法有很多种，下面介绍其中几种常见的实现方式：
+        // 数据库隔离：每个租户使用独立的数据库，每个数据库中只包含属于该租户的数据。
+        // 这种方式的优点是隔离性强，不同租户之间不会相互影响，但是需要管理大量的数据库，成本较高。
+        // 数据库共享：所有租户共享一个数据库，但是在表中增加一个租户标识字段，根据该字段区分不同租户的数据。
+        // 这种方式的优点是成本较低，但是隔离性较差，容易出现数据混乱或安全问题。
+        // 架构隔离：每个租户在应用程序中使用独立的实例，每个实例都有自己的代码、配置、资源和数据。
+        // 这种方式的优点是隔离性强，不同租户之间相互独立，但是需要管理大量的实例，成本较高。
+        // 虚拟化隔离：使用虚拟化技术，将不同租户的应用程序运行在不同的虚拟机或容器中，实现资源隔离和隔离性。
+        // 这种方式的优点是隔离性强，同时可以节省硬件成本，但是对于大规模的应用程序需要管理大量的虚拟机或容器。
+
+        // 在 Nacos 中，多租户的实现是通过 Namespace（命名空间）的概念来实现的。
+        // 在使用 Nacos 时，可以为不同的租户创建不同的 Namespace，
+        // 将不同租户的服务实例和配置信息存储在不同的 Namespace 中，从而实现多租户的隔离。
         ParamUtils.checkTenant(tenant);
         ParamUtils.checkParam(dataId, group, "datumId", content);
         ParamUtils.checkParam(tag);
@@ -194,6 +212,11 @@ public class ConfigController {
             // beta publish
             configInfo.setEncryptedDataKey(encryptedDataKey);
             persistService.insertOrUpdateBeta(configInfo, betaIps, srcIp, srcUser, time, false);
+            // 配置更新事件
+            // ConfigChangePublisher 会在 Nacos 的配置存储中监视指定的配置信息，并将该配置信息的变更事件保存在内存中。例如，当某个配置信息的内容发生变化时，ConfigChangePublisher 会将变更事件保存在内存中，并标记该事件为“待发布”状态。
+            // ConfigChangePublisher 会轮询内存中的变更事件，并将“待发布”状态的事件发送给订阅了该配置信息的客户端。具体来说，它会将变更事件封装成一个 ConfigChangePacket 对象，并通过 WebSocket 或 HTTP 协议将该对象发送给客户端。
+            // 客户端收到 ConfigChangePacket 对象后，会检查该对象中的变更事件是否与自己订阅的配置信息相匹配。如果匹配，则客户端会重新拉取最新的配置信息。
+            // ConfigChangePublisher 会将已经发送给客户端的变更事件从内存中删除，以避免重复发送。
             ConfigChangePublisher.notifyConfigChange(
                     new ConfigDataChangeEvent(true, dataId, group, tenant, time.getTime()));
         }

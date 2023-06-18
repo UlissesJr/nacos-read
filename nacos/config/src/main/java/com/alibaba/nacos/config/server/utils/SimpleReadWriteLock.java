@@ -26,11 +26,15 @@ public class SimpleReadWriteLock {
     /**
      * Zero means no lock; Negative Numbers mean write locks; Positive Numbers mean read locks, and the numeric value
      * represents the number of read locks.
+     * 0 代表没有锁，负值代表写锁，正值代表读锁，数值表示读锁定的数量
      */
     private int status = 0;
     
     /**
      * Try read lock.
+     * 读写互斥
+     * 获取读锁，先检查是否有写锁，有的话就获取失败
+     * 获取成功status++；
      */
     public synchronized boolean tryReadLock() {
         if (isWriteLocked()) {
@@ -43,6 +47,8 @@ public class SimpleReadWriteLock {
     
     /**
      * Release the read lock.
+     * 释放读锁：
+     * 如果
      */
     public synchronized void releaseReadLock() {
         // when status equals 0, it should not decrement to negative numbers
@@ -54,6 +60,9 @@ public class SimpleReadWriteLock {
     
     /**
      * Try write lock.
+     * 获取写锁
+     * 必须在锁为 free 的状态下才可以获取成功
+     * 获取成功则将 status 改为 -1 ；
      */
     public synchronized boolean tryWriteLock() {
         if (!isFree()) {
@@ -63,7 +72,10 @@ public class SimpleReadWriteLock {
             return true;
         }
     }
-    
+
+    /**
+     * 释放写锁将 status 改为0；
+     */
     public synchronized void releaseWriteLock() {
         status = 0;
     }

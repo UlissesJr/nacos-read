@@ -95,9 +95,12 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
     
     /**
      * This method creates {@code IpPortBasedClient} if it don't exist.
+     *
      */
     @Override
     public void registerInstance(String namespaceId, String serviceName, Instance instance) throws NacosException {
+        // 检测心跳间隔、心跳过期时间、IP删除时间设置是否合理
+        // clusterName 命名是否合理
         NamingUtils.checkInstanceIsLegal(instance);
         
         boolean ephemeral = instance.isEphemeral();
@@ -178,6 +181,7 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
     @Override
     public ServiceInfo listInstance(String namespaceId, String serviceName, Subscriber subscriber, String cluster,
             boolean healthOnly) {
+        // 根据入参新建一个服务对象
         Service service = getService(namespaceId, serviceName, true);
         // For adapt 1.X subscribe logic
         if (subscriber.getPort() > 0 && pushService.canEnablePush(subscriber.getAgent())) {
@@ -185,6 +189,7 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
             createIpPortClientIfAbsent(clientId);
             clientOperationService.subscribeService(service, subscriber, clientId);
         }
+
         ServiceInfo serviceInfo = serviceStorage.getData(service);
         ServiceMetadata serviceMetadata = metadataManager.getServiceMetadata(service).orElse(null);
         ServiceInfo result = ServiceUtil

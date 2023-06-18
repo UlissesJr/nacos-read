@@ -130,6 +130,7 @@ public class ConfigServletInner {
         String autoTag = request.getHeader("Vipserver-Tag");
         
         String requestIpApp = RequestUtil.getAppName(request);
+        // 获取读锁
         int lockResult = tryConfigReadLock(groupKey);
         
         final String requestIp = RequestUtil.getRemoteIp(request);

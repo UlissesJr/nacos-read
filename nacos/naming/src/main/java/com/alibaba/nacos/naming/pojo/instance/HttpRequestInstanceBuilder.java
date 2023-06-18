@@ -52,7 +52,8 @@ public class HttpRequestInstanceBuilder {
     private final Collection<InstanceExtensionHandler> handlers;
     
     private boolean defaultInstanceEphemeral = true;
-    
+
+    // 私有化构造函数
     private HttpRequestInstanceBuilder() {
         this.actualBuilder = InstanceBuilder.newBuilder();
         this.handlers = NacosServiceLoader.newServiceInstances(InstanceExtensionHandler.class);
